@@ -8,7 +8,7 @@ from django.db.models import Avg
 from .models import Category, Product, Customer, Order
 from .serializers import CategorySerializer, ProductSerializer, CustomerSerializer, OrderSerializer
 from .permissions import IsAdminUser, IsCustomer
-from .utils import send_order_notification
+from .utils import send_order_notification, send_order_confirmation
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -58,10 +58,13 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Create order and send notification."""
-        # Ensure the customer is set to the current user's customer profile
-        customer = Customer.objects.get(user=self.request.user)
-        order = serializer.save(customer=customer)
-        send_order_notification(order)
+        try:
+            customer = Customer.objects.get(user=self.request.user)
+            order = serializer.save(customer=customer)
+            # Send initial order confirmation
+            send_order_confirmation(order)
+        except Customer.DoesNotExist:
+            raise serializer.ValidationError("Customer profile not found")
 
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
@@ -80,11 +83,16 @@ class OrderViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
+        old_status = order.status
         order.status = new_status
         order.save()
+        
+        # Send status update notification
         send_order_notification(order)
+        
         return Response({
             "status": "updated",
+            "old_status": old_status,
             "new_status": new_status,
             "order_number": order.order_number
         })
