@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,10 +20,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps
     'rest_framework',
     'drf_yasg',
-    'savannah_app',
     'mptt',
+    'oauth2_provider',
+    'rest_framework_simplejwt',
+    'guardian',
+
+    # Local apps
+    'savannah_app',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'savannah_project.wsgi.application'
 
-# Database
+# Database configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -70,6 +78,8 @@ DATABASES = {
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
@@ -78,11 +88,38 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Africa's Talking Settings
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+# OAuth2 settings
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'customer': 'Customer scope',
+        'admin': 'Admin scope',
+    },
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 3600,
+    'REFRESH_TOKEN_EXPIRE_SECONDS': 86400,
+}
+
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# Africa's Talking API settings
 AT_USERNAME = 'sandbox'
 AT_API_KEY = 'your-api-key'
 
-# Email Settings
+# Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
 ADMIN_EMAIL = 'admin@example.com'
@@ -103,13 +140,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+# Internationalization settings
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files settings
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
