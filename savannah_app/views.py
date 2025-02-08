@@ -1,4 +1,3 @@
-# views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,6 +8,31 @@ from .models import Category, Product, Customer, Order
 from .serializers import CategorySerializer, ProductSerializer, CustomerSerializer, OrderSerializer
 from .permissions import IsAdminUser, IsCustomer
 from .utils import send_order_notification, send_order_confirmation
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['get'])
+    def average_price(self, request, pk=None):
+        """Get average product price for a category."""
+        category = self.get_object()
+        average = category.products.aggregate(avg_price=Avg('price'))['avg_price']
+        
+        # Include child categories in calculation
+        for child in category.get_descendants():
+            child_avg = child.products.aggregate(avg_price=Avg('price'))['avg_price']
+            if child_avg is not None:
+                if average is None:
+                    average = child_avg
+                else:
+                    average = (average + child_avg) / 2
+
+        return Response({
+            'category': category.name,
+            'average_price': average if average is not None else 0
+        })
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -46,6 +70,18 @@ class ProductViewSet(viewsets.ModelViewSet):
             {"error": "Category ID is required"}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Customer.objects.all()
+        return Customer.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
