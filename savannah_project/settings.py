@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
+import sys  # Added for test detection
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,8 +29,8 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework_simplejwt',
     'guardian',
-    'corsheaders',  # Added for API access
-    'django_filters',  # Added for filtering
+    'corsheaders',
+    'django_filters',
 
     # Local apps
     'savannah_app',
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Added for CORS
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -51,7 +52,7 @@ ROOT_URLCONF = 'savannah_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Added templates directory
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,17 +139,27 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Africa's Talking API settings
-AFRICASTALKING_USERNAME = 'sandbox'
-AFRICASTALKING_API_KEY = 'your-api-key'
-AFRICASTALKING_SENDER_ID = 'SAVANNAH'  # Optional
+AT_USERNAME = 'sandbox'
+AT_API_KEY = 'your-api-key'
+AT_SENDER_ID = 'SAVANNAH'
+
+# Override settings for testing
+if 'test' in sys.argv:
+    AT_USERNAME = 'test'
+    AT_API_KEY = 'test-key'
+    AT_SENDER_ID = 'TEST'
+    # Disable Africa's Talking during tests
+    TESTING = True
+else:
+    TESTING = False
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Update with your SMTP host
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'  # Update with your email
-EMAIL_HOST_PASSWORD = 'your-email-password'  # Update with your password
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
 ADMIN_EMAIL = 'admin@example.com'
 
@@ -214,14 +225,13 @@ CACHES = {
     }
 }
 
-# Celery configuration (for background tasks)
+# Celery configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-TIME_ZONE = 'UTC'
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_TIMEZONE = 'UTC'
 
 # Internationalization settings
 LANGUAGE_CODE = 'en-us'
