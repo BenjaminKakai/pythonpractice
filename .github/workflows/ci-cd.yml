@@ -59,18 +59,18 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t savannah:test .
-          echo "Docker image built successfully"
+          echo "Successfully built Docker image"
 
-  deploy:
+  demo-deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
 
     steps:
-      - name: Simulate deployment
+      - name: Demo deployment
         run: |
-          echo "Starting deployment simulation..."
-          echo "Step 1: Preparing deployment environment"
-          echo "Step 2: Deploying application"
-          echo "Step 3: Running post-deployment checks"
-          echo "Deployment simulation completed successfully"
+          echo "=== Demonstrating deployment process ==="
+          echo "1. Image would be deployed to production servers"
+          echo "2. Application configurations would be updated"
+          echo "3. Services would be restarted"
+          echo "=== Deployment demonstration completed ==="
