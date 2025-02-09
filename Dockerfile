@@ -24,5 +24,5 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . .
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "savannah_project.wsgi:application"]
+# Run gunicorn with worker configuration
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "--access-logfile", "-", "--error-logfile", "-", "savannah_project.wsgi:application"]

@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import timedelta
-import sys  # Added for test detection
+import sys
+import os
+import dj_database_url 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,7 +13,8 @@ SECRET_KEY = 'django-insecure-qotkj@eyqm3#xp()g(79tp4ili9p(rs&4_-#e+jzzyvj=&pqhe
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Updated to allow all hosts in Kubernetes
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -67,16 +70,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'savannah_project.wsgi.application'
 
-# Database configuration
+# Updated database configuration to use environment variables and Kubernetes service names
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'savannah_db',
-        'USER': 'postgres',
-        'PASSWORD': 'co37x74bob',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgresql://postgres:co37x74bob@postgres:5432/postgres'),
+        conn_max_age=600
+    )
 }
 
 # REST Framework settings
@@ -148,7 +147,6 @@ if 'test' in sys.argv:
     AT_USERNAME = 'test'
     AT_API_KEY = 'test-key'
     AT_SENDER_ID = 'TEST'
-    # Disable Africa's Talking during tests
     TESTING = True
 else:
     TESTING = False
