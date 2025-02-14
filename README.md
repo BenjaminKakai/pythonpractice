@@ -1,6 +1,6 @@
 # Savannah E-commerce API
 
-A robust Django REST Framework API for an e-commerce platform featuring hierarchical product categories, order management, and automated notifications.
+A robust Django REST Framework API for an e-commerce platform featuring hierarchical product categories, order management, and automated notifications. Built with enterprise-grade security, containerization, and CI/CD integration.
 
 ## Features
 
@@ -8,6 +8,7 @@ A robust Django REST Framework API for an e-commerce platform featuring hierarch
   - JWT-based authentication
   - Token-based API access
   - Role-based permissions
+  - Comprehensive security controls
 
 - **Product Management**
   - Hierarchical category structure (unlimited depth)
@@ -39,12 +40,49 @@ A robust Django REST Framework API for an e-commerce platform featuring hierarch
 - JWT Authentication
 - Africa's Talking SMS Gateway
 - Docker & Docker Compose
+- Kubernetes
+- GitLab CI/CD
 
-## Setup & Installation
+## API Documentation
+
+Our API is fully documented using OpenAPI (Swagger) specification. Access the interactive documentation at:
+
+```
+http://your-domain/api/docs/
+```
+
+The documentation includes:
+- Detailed endpoint descriptions
+- Request/response examples
+- Authentication requirements
+- Schema definitions
+
+## Security Features
+
+### Authentication & Authorization
+- JWT token-based authentication
+- Role-based access control (RBAC)
+- Token expiration and refresh mechanisms
+- API rate limiting
+
+### Data Security
+- Input validation and sanitization
+- SQL injection prevention
+- XSS protection
+- CORS configuration
+- Secure password hashing
+
+### Error Handling
+- Structured error responses
+- Detailed logging
+- Custom exception handling
+- Graceful failure recovery
+
+## Development Setup
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/BenjaminKakai/pythonpractice.git
 cd savannah-ecommerce
 ```
 
@@ -61,8 +99,12 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-4. Initialize the database:
+4. Initialize the PostgreSQL database:
 ```bash
+# Create database
+createdb savannah_ecommerce
+
+# Run migrations
 python manage.py migrate
 python manage.py createsuperuser
 ```
@@ -72,92 +114,75 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## API Endpoints
-
-### Authentication
-```
-POST /api/token/ - Obtain JWT token
-POST /api/token/refresh/ - Refresh JWT token
-```
-
-### Categories
-```
-GET /api/v1/categories/ - List all categories
-POST /api/v1/categories/ - Create a category
-GET /api/v1/categories/{id}/ - Retrieve category
-PUT /api/v1/categories/{id}/ - Update category
-DELETE /api/v1/categories/{id}/ - Delete category
-GET /api/v1/categories/{id}/average_price/ - Get average price of products in category
-```
-
-### Products
-```
-GET /api/v1/products/ - List all products
-POST /api/v1/products/ - Create a product
-GET /api/v1/products/{id}/ - Retrieve product
-PUT /api/v1/products/{id}/ - Update product
-DELETE /api/v1/products/{id}/ - Delete product
-```
-
-### Customers
-```
-GET /api/v1/customers/ - List all customers
-POST /api/v1/customers/ - Create a customer
-GET /api/v1/customers/{id}/ - Retrieve customer
-PUT /api/v1/customers/{id}/ - Update customer
-DELETE /api/v1/customers/{id}/ - Delete customer
-```
-
-### Orders
-```
-GET /api/v1/orders/ - List all orders
-POST /api/v1/orders/ - Create an order
-GET /api/v1/orders/{id}/ - Retrieve order
-PUT /api/v1/orders/{id}/ - Update order
-DELETE /api/v1/orders/{id}/ - Delete order
-```
-
-## API Usage Examples
-
-### Authentication
-```bash
-# Obtain token
-curl -X POST http://localhost:8000/api/token/ \
-     -H "Content-Type: application/json" \
-     -d '{"username": "your_username", "password": "your_password"}'
-```
-
-### Creating a Product
-```bash
-curl -X POST http://localhost:8000/api/v1/products/ \
-     -H "Authorization: Bearer your_access_token" \
-     -H "Content-Type: application/json" \
-     -d '{
-         "name": "Product Name",
-         "description": "Product Description",
-         "price": "99.99",
-         "category": 1
-     }'
-```
-
 ## Docker Deployment
 
-1. Build the image:
+1. Build and run with Docker Compose:
 ```bash
-docker-compose build
+docker-compose up --build
 ```
 
-2. Run the containers:
+2. For production deployment:
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## Testing
+## Kubernetes Deployment
 
-Run the test suite:
+1. Apply Kubernetes configurations:
 ```bash
+kubectl apply -f k8s/
+```
+
+2. Verify deployment:
+```bash
+kubectl get pods
+kubectl get services
+```
+
+## Testing and Quality Assurance
+
+### Running Tests
+```bash
+# Run test suite
 python manage.py test
+
+# Generate coverage report
+coverage run manage.py test
+coverage report
+coverage html  # Generates detailed HTML report
 ```
+
+### Code Quality
+- Linting: `flake8`
+- Type checking: `mypy`
+- Code formatting: `black`
+
+## CI/CD Pipeline
+
+Our GitLab CI/CD pipeline includes:
+
+1. Build Stage:
+   - Code linting
+   - Type checking
+   - Unit tests
+   - Coverage reporting
+
+2. Test Stage:
+   - Integration tests
+   - Security scanning
+   - Performance testing
+
+3. Deploy Stage:
+   - Docker image building
+   - Container scanning
+   - Kubernetes deployment
+
+## Monitoring and Logging
+
+- Application monitoring via Prometheus
+- Log aggregation with ELK stack
+- Performance metrics collection
+- Error tracking and alerting
 
 ## Contributing
 
@@ -166,6 +191,11 @@ python manage.py test
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+Please ensure your PR adheres to:
+- Test coverage requirements
+- Code style guidelines
+- Documentation standards
 
 ## License
 
