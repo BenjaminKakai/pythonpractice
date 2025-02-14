@@ -82,7 +82,7 @@ The documentation includes:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/BenjaminKakai/pythonpractice.git
+git clone https://github.com/BenjaminKakai/E-commerce-API.git
 cd savannah-ecommerce
 ```
 
